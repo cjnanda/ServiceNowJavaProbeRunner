@@ -1,5 +1,5 @@
-var JavaProbeRunner = Class.create();
-JavaProbeRunner.prototype = Object.extendsObject(AProbe,{
+var MidJavaProbeRunner = Class.create();
+MidJavaProbeRunner.prototype = Object.extendsObject(AProbe,{
 	 _parms: {},
     initialize : function(probe) {
         this.probe = probe;
@@ -32,7 +32,7 @@ JavaProbeRunner.prototype = Object.extendsObject(AProbe,{
        	//Instantiate the processor
            var processor = new Packages.com.snc.mid.examples.mid_probe.ProbeProcessor(ms, this.probe);
            //Process or Start, depending on if this is a single processing or a server to run
-           processor.process();
+           processor.start();
        }catch(e){
          ms.log(e);
          throw e;
@@ -43,5 +43,5 @@ JavaProbeRunner.prototype = Object.extendsObject(AProbe,{
     },     
    
 
-	type: "JavaProbeRunner"
+	type: "MidJavaProbeRunner"
 });

@@ -18,7 +18,16 @@ public class ProbeProcessor implements IProcessor
 	  private MIDSystem _ms;
 	  private DataThread _thread1;
 	  
-	  private JavascriptProbe get_probe()
+	  public ProbeProcessor(MIDSystem ms, JavascriptProbe probe)
+	  {
+	    set_probe(probe);
+	    set_ms(ms);
+	    
+	    _thread1 = new DataThread(this);
+	  }
+	  
+	  
+	  public JavascriptProbe get_probe()
 	  {
 	    return this._probe;
 	  }
@@ -29,7 +38,7 @@ public class ProbeProcessor implements IProcessor
 	    
 	  }
 	  
-	  private MIDSystem get_ms()
+	  public MIDSystem get_ms()
 	  {
 	    return this._ms;
 	  }
@@ -39,15 +48,9 @@ public class ProbeProcessor implements IProcessor
 	    this._ms = val;
 	  }
 	  
-	  public ProbeProcessor(MIDSystem ms, JavascriptProbe probe)
-	  {
-	    set_probe(probe);
-	    set_ms(ms);
-	    
-	    _thread1 = new DataThread(this);
-	  }
 	  
-	  public void SendResult(String name, String output)
+	  
+	  public void sendResult(String name, String output)
 	  {
 		  //Good practice to base64 encode the result.  This way you ensure you do not break the XML parser within the ServiceNow instance
 	    String content = base64EncodeContent(output);
@@ -76,7 +79,7 @@ public class ProbeProcessor implements IProcessor
           ArrayList stderr = p.getErrorLines();
           String out = StringUtil.join(stdout, "\n");
           String err = StringUtil.join(stderr, "\n");
-          SendResult("MyProbeName", out);
+          sendResult("MyProbeName", out);
 		  
 	    return Boolean.valueOf(true);
 	  }
@@ -84,14 +87,16 @@ public class ProbeProcessor implements IProcessor
 	  
 	  public Boolean start() throws InterruptedException
 	  {
+		  Integer count = 0;
          _thread1.start();
          State st = _thread1.getState();
-		while(st== State.RUNNABLE) {
+		while(st== State.RUNNABLE && count < 5) {
 			Thread.sleep(10000);
 			this.get_probe().createOutputResult("HEARTBEAT");
-			this.get_probe().queue("Heartbeat", "MyProbeName", "");
+			this.get_probe().queue("Heartbeat", "MyProbeName", "MyProbeName");
+			count++;
 		}
-         
+         _thread1.stopServer();
          
 	    return Boolean.valueOf(true);
 	  }
